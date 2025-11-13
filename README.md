@@ -13,7 +13,7 @@ It manages user authentication, asset tracking, allocations, return requests, an
 
   
 
-## 🚀 Tech Stack
+## Tech Stack
 
 | **Layer** | **Technology** |
 |------------|----------------|
