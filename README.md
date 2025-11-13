@@ -20,53 +20,34 @@ It manages user authentication, asset tracking, allocations, return requests, an
 | Layer | Technology |
 
 |--------|-------------|
-
 | **Backend Framework** | FastAPI |
-
 | **Database** | PostgreSQL |
-
 | **ORM** | SQLAlchemy |
-
 | **Authentication** | JWT (Access + Refresh Tokens) |
-
 | **Testing** | Pytest |
-
 | **Email Service** | (Future) Amazon SES or SMTP |
-
 | **Containerization** | Docker (Planned) |
 
   
-
 ---
 
   
 
-## Tech Stack
+## Folder-Structure
 
-```
+```bash
 
-backend/
-
+asset-allocation-backend/
 ├── api/
-
 │ ├── models/
-
 │ ├── routes/
-
 │ ├── schemas/
-
 ├── core/
-
 │ ├── auth.py
-
 │ ├── config.py
-
 ├── main.py
-
 ├── venv
-
 ├── requirements.txt
-
 ├── README.md
 
 ```
