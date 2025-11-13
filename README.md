@@ -1,6 +1,5 @@
 # Asset Allocation Backend (FastAPI)
 
-Asset Allocation System Documentation - `https://goswamiaditya-gkmit.github.io/AssetFlow-documentation/`
   
 
 The **Backend** is the core service of the Asset Allocation/Management System.
@@ -11,39 +10,64 @@ It manages user authentication, asset tracking, allocations, return requests, an
 
 ---
 
+  
 
-## Tech Stack
+## 🚀 Tech Stack
 
-| **Layer** | **Technology** |
-|------------|----------------|
+  
+
+| Layer | Technology |
+
+|--------|-------------|
+
 | **Backend Framework** | FastAPI |
+
 | **Database** | PostgreSQL |
+
 | **ORM** | SQLAlchemy |
+
 | **Authentication** | JWT (Access + Refresh Tokens) |
+
 | **Testing** | Pytest |
-| **Email Service** | *(Planned)* Amazon SES or SMTP |
-| **Migrations** | Alembic |
-| **API Documentation** | Swagger / ReDoc (via FastAPI) |
+
+| **Email Service** | (Future) Amazon SES or SMTP |
+
+| **Containerization** | Docker (Planned) |
+
+  
 
 ---
 
   
 
-## Folder-Structure
+## Tech Stack
 
-```bash
+```
 
-asset-allocation-backend/
+backend/
+
 ├── api/
-│   ├── models/
-│   ├── routes/
-│   ├── schemas/
+
+│ ├── models/
+
+│ ├── routes/
+
+│ ├── schemas/
+
 ├── core/
-│   ├── auth.py
-│   ├── config.py
+
+├── db/
+
+│ ├── auth.py
+
+│ ├── config.py
+
 ├── main.py
+
 ├── venv
+
 ├── requirements.txt
+
 ├── README.md
 
 ```
