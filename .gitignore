@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.installed.cfg
+MANIFEST
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+# IDE-specific files
+.vscode/ # VS Code (if not shared settings)
+*.swp # Vim swap files
+
+# Database files
+*.sqlite3
+*.db
+*.bak
+
+# Logs
+*.log
+logs/
+
+# Uploaded media (if applicable)
+media/
+uploads/
+
+# Environment variables
+.env
+.flaskenv
+
+# Other temporary files
+tmp/
+temp/
