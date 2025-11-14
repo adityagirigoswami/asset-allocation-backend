@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from db.config import engine, Base
 
-app = FastAPI()
+app = FastAPI(title="Asset Allocation System")
 
 @app.get("/")
-async def read_root():
-    return {"message": "Hello World"}
+def root():
+    return {"message": "Welcome to Asset Allocation System API"}

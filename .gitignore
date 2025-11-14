@@ -12,6 +12,7 @@ venv/
 .venv/
 env/
 .env/
+!.env.example
 
 # IDE-specific files
 .vscode/ # VS Code (if not shared settings)
