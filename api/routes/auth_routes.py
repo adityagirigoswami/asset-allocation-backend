@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status , Header
 from sqlalchemy.orm import Session
 from db.auth import get_db
 from api.schemas.user_schemas import UserLogin, TokenPair, EmployeeCreate, UserResponse
@@ -22,7 +22,8 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
     )
 
 @router.post("/refresh", response_model=TokenPair)
-def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+def refresh_token(refresh_token: str = Header(..., alias="X-Refresh-Token"),
+    db: Session = Depends(get_db)):
     """
     Accepts refresh token in body (simple). I'll move it to httpOnly cookie later.
     """
