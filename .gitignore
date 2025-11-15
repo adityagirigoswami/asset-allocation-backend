@@ -13,6 +13,7 @@ venv/
 env/
 .env/
 !.env.example
+.DS_Store
 
 # IDE-specific files
 .vscode/ # VS Code (if not shared settings)
