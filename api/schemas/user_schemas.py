@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
+from typing import Optional
 
 class EmployeeCreate(BaseModel):
     email: EmailStr
@@ -27,3 +28,9 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str]
+    password: Optional[str]
+    employee_code: Optional[str]
+    phone: Optional[str]
