@@ -2,12 +2,20 @@ from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from typing import Optional
 
+
 class EmployeeCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str
     employee_code: str | None = None
     phone: str | None = None
+    
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -26,8 +34,6 @@ class UserResponse(BaseModel):
     employee_code: str | None
     phone: str | None
 
-    class Config:
-        from_attributes = True
 
 class UserUpdate(BaseModel):
     full_name: Optional[str]
