@@ -19,7 +19,7 @@ def create_category(payload: CategoryCreate, db: Session = Depends(get_db)):
     db.refresh(cat)
     return cat
 
-@router.get("", response_model=list[CategoryOut])
+@router.get("", response_model=list[CategoryOut], dependencies=[Depends(require_admin)])
 def list_categories(db: Session = Depends(get_db)):
     return db.query(Category).filter(Category.deleted_at.is_(None)).order_by(Category.id.desc()).all()
 
