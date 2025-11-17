@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from typing import Optional
+from ._base import BaseSchema
 
 
 class EmployeeCreate(BaseModel):
@@ -26,7 +27,7 @@ class TokenPair(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
 
-class UserResponse(BaseModel):
+class UserResponse(BaseSchema):
     id: UUID
     email: EmailStr
     full_name: str
