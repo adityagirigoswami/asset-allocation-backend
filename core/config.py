@@ -24,4 +24,17 @@ class Settings:
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
     ADMIN_FULL_NAME = os.getenv("ADMIN_FULL_NAME")
 
+    # Email (FastAPI-Mail)
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    MAIL_FROM = os.getenv("MAIL_FROM")
+    MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "Asset Allocation System")
+    MAIL_SERVER = os.getenv("MAIL_SERVER")
+    MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_TLS = os.getenv("MAIL_TLS", "True") == "True"
+    MAIL_SSL = os.getenv("MAIL_SSL", "False") == "True"
+
+    FRONTEND_RESET_URL = os.getenv("FRONTEND_RESET_URL")
+
+
 settings = Settings()
