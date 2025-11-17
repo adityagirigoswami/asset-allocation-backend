@@ -8,8 +8,10 @@ from api.utils.hashing import verify_password, hash_password
 from api.utils.jwt_handler import create_access_token, create_refresh_token, decode_token
 from core.security import require_admin, get_current_user
 from api.models.password_reset_tokens import PasswordResetToken
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
+from api.utils.mailer import EmailService
+from core.config import settings
 
 
 
@@ -28,11 +30,13 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
 
 
 # ------------------ PASSWORD RESET: REQUEST ------------------
+# @router.post("/password/reset-request")
+
 @router.post("/password/reset-request")
-def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(get_db)):
+async def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email, User.deleted_at.is_(None)).first()
 
-    # Prevent user enumeration
+    # Always return success message to avoid email enumeration
     if not user:
         return {"detail": "If the email exists, a reset link will be sent."}
 
@@ -47,7 +51,19 @@ def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(
     db.add(prt)
     db.commit()
 
-    ## TODO: Email integration (SES/SMTP)
+    # 1. Generate HTML using the new service method
+    html_body = EmailService.create_reset_html(
+        full_name=user.full_name, 
+        token=token
+    )
+
+    # 2. Send email
+    await EmailService.send_email(
+        to=[user.email],
+        subject="Password Reset Request",
+        html=html_body
+    )
+
     return {"detail": "If the email exists, a reset link will be sent."}
 
 
@@ -67,7 +83,7 @@ def confirm_password_reset(payload: PasswordResetConfirm, db: Session = Depends(
     if not token_row:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
-    if token_row.expires_at < datetime.utcnow():
+    if token_row.expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Token expired")
 
     user = db.query(User).filter(User.id == token_row.user_id).first()
