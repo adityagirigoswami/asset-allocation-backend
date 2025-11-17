@@ -8,6 +8,9 @@ from api.models.assets import Asset
 from api.models.assets_histories import AssetHistory
 from api.utils.enums import AssetStatus
 from api.schemas.allocation_schemas import AllocationCreate, AllocationOut
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from uuid import UUID
 
 router = APIRouter(prefix="/allocations", tags=["Allocations"])
 
@@ -65,37 +68,3 @@ def current_allocations(employee_id: str, db: Session = Depends(get_db)):
         .order_by(Allocation.allocation_date.desc())
         .all()
     )
-
-
-# -------- Allocation history of one asset
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from uuid import UUID # Assuming asset_id should be UUID for better type hint
-
-@router.get("/by-asset/{asset_id}", response_model=list[AllocationOut])
-def asset_allocations(asset_id: UUID, db: Session = Depends(get_db)):
-    # Note: Changed asset_id type hint to UUID for consistency with UUID usage
-    asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
-    
-    if not asset:
-        # Error for a non-existent asset ID
-        raise HTTPException(
-            status_code=404, 
-            detail="No asset found with this ID."
-        )
-    
-    allocations = (
-        db.query(Allocation)
-        .filter(Allocation.asset_id == asset_id, Allocation.deleted_at.is_(None))
-        .order_by(Allocation.allocation_date.desc())
-        .all()
-    )
-
-    if not allocations:
-        # Check if the list of allocations is empty
-        raise HTTPException(
-            status_code=404, 
-            detail=f"No active allocations found for asset ID: {asset_id}"
-        )
-
-    return allocations
