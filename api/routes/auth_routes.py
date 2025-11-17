@@ -30,6 +30,8 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
 
 
 # ------------------ PASSWORD RESET: REQUEST ------------------
+# @router.post("/password/reset-request")
+
 @router.post("/password/reset-request")
 async def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email, User.deleted_at.is_(None)).first()
@@ -49,27 +51,17 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
     db.add(prt)
     db.commit()
 
-    # Construct reset link (temporary frontend URL)
-    reset_link = f"{settings.FRONTEND_RESET_URL}?token={token}"
+    # 1. Generate HTML using the new service method
+    html_body = EmailService.create_reset_html(
+        full_name=user.full_name, 
+        token=token
+    )
 
-    html = f"""
-    <h3>Password Reset Request</h3>
-    <p>Hello {user.full_name},</p>
-    <p>You requested a password reset.</p>
-    <p>
-        <a href="{reset_link}"
-           style="padding: 10px 20px; background-color: #007bff; color:white; text-decoration:none; border-radius:5px;">
-            Reset Password
-        </a>
-    </p>
-    <p>If you did not request this, you can safely ignore this email.</p>
-    """
-
-    # 🎯 send email using pluggable service
+    # 2. Send email
     await EmailService.send_email(
         to=[user.email],
         subject="Password Reset Request",
-        html=html
+        html=html_body
     )
 
     return {"detail": "If the email exists, a reset link will be sent."}

@@ -18,6 +18,24 @@ mail_conf = ConnectionConfig(
 )
 
 class EmailService:
+    
+    @staticmethod
+    def create_reset_html(full_name: str, token: str) -> str:
+        """Constructs the HTML body for the password reset request."""
+        reset_link = f"{settings.FRONTEND_RESET_URL}?token={token}"
+
+        return f"""
+        <h3>Password Reset Request</h3>
+        <p>Hello {full_name},</p>
+        <p>You requested a password reset.</p>
+        <p>
+            <a href="{reset_link}"
+               style="padding: 10px 20px; background-color: #007bff; color:white; text-decoration:none; border-radius:5px;">
+                Reset Password
+            </a>
+        </p>
+        <p>If you did not request this, you can safely ignore this email.</p>
+        """
 
     @staticmethod
     async def send_email(to: List[str], subject: str, html: str):
