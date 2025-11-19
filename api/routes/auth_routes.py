@@ -92,7 +92,7 @@ def confirm_password_reset(payload: PasswordResetConfirm, db: Session = Depends(
         raise HTTPException(status_code=404, detail="User not found")
 
     user.password_hash = hash_password(payload.new_password)
-    token_row.used_at = datetime.utcnow()
+    token_row.used_at = datetime.now(timezone.utc)
 
     db.commit()
 

@@ -23,6 +23,18 @@ def create_employee(payload: EmployeeCreate,
     if not employee_role:
         raise HTTPException(status_code=500, detail="Employee role missing. Run seeding.")
 
+    # Check for case-insensitive employee_code uniqueness
+    if payload.employee_code:
+        existing = db.query(User).filter(
+            User.employee_code.ilike(payload.employee_code),
+            User.deleted_at.is_(None)
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Employee code '{payload.employee_code}' already exists (case-insensitive)"
+            )
+
     new_user = User(
         email=payload.email,
         password_hash=hash_password(payload.password),
@@ -87,6 +99,17 @@ def update_user(user_id: str, payload: Optional[UserUpdate] = Body(None), db: Se
     if payload.full_name is not None:
             user.full_name = payload.full_name
     if payload.employee_code is not None:
+            # Check for case-insensitive employee_code uniqueness (excluding current user)
+            existing = db.query(User).filter(
+                User.employee_code.ilike(payload.employee_code),
+                User.id != user_id,
+                User.deleted_at.is_(None)
+            ).first()
+            if existing:
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Employee code '{payload.employee_code}' already exists (case-insensitive)"
+                )
             user.employee_code = payload.employee_code
     if payload.phone is not None:
             user.phone = payload.phone
