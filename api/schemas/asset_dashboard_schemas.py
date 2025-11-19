@@ -6,3 +6,4 @@ class AssetDashboardSummary(BaseModel):
     assigned: int
     under_repair: int
     damaged: int
+    pending_requests: int

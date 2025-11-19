@@ -4,6 +4,7 @@ from datetime import datetime
 from db.auth import get_db
 from core.security import require_admin, get_current_user
 from api.models.assets import Asset
+from api.models.return_requests import ReturnRequest
 from api.models.assets_histories import AssetHistory
 from api.schemas.allocation_schemas import AllocationCreate, AllocationOut
 from api.models.allocations import Allocation
@@ -179,6 +180,7 @@ def asset_dashboard_summary(db: Session = Depends(get_db)):
     """
 
     total = db.query(Asset).filter(Asset.deleted_at.is_(None)).count()
+    pending_requests = db.query(ReturnRequest).filter(ReturnRequest.approved_at.is_(None), ReturnRequest.deleted_at.is_(None)).count()
 
     available = db.query(Asset).filter(
         Asset.status == AssetStatus.available,
@@ -205,5 +207,6 @@ def asset_dashboard_summary(db: Session = Depends(get_db)):
         available=available,
         assigned=assigned,
         under_repair=under_repair,
-        damaged=damaged
+        damaged=damaged,
+        pending_requests = pending_requests
     )
