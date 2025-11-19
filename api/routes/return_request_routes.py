@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
+from api.routes.admin_routes import employees_router
 from db.auth import get_db
 from core.security import require_admin, get_current_user
 from api.models.return_requests import ReturnRequest
@@ -14,7 +15,8 @@ from api.schemas.return_request_schemas import (
     ReturnRequestCreate, ReturnRequestOut, ReturnRequestApprove
 )
 
-router = APIRouter(prefix="/return-requests", tags=["Return Requests"])
+router = APIRouter(prefix="/requests", tags=["Return Requests"])
+employees_router = APIRouter(prefix="/employees/me", tags=["employees"])
 
 def add_return_request_names(req, db):
     """
@@ -60,7 +62,7 @@ def create_return_request(payload: ReturnRequestCreate, db: Session = Depends(ge
     return add_return_request_names(req, db)
 
 
-@router.get("/my", response_model=list[ReturnRequestOut])
+@employees_router.get("/requests", response_model=list[ReturnRequestOut])
 def my_requests(db: Session = Depends(get_db), user=Depends(get_current_user)):
     requests = (
         db.query(ReturnRequest)
@@ -86,7 +88,6 @@ def pending_requests(db: Session = Depends(get_db)):
     return [add_return_request_names(req, db) for req in requests]
 
 
-# -------- Approve return request (Admin)
 
 # -------- Approve return request (Admin)
 @router.post("/{id}/approve", response_model=ReturnRequestOut, dependencies=[Depends(require_admin)])

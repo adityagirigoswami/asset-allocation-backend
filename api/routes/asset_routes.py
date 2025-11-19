@@ -17,7 +17,7 @@ from sqlalchemy.orm import selectinload
 
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
-
+dashboard_router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 # -------- Create Asset (Admin)
 @router.post("", response_model=AssetOut, dependencies=[Depends(require_admin)])
 def create_asset(payload: AssetCreate, db: Session = Depends(get_db), admin=Depends(get_current_user)):
@@ -172,7 +172,7 @@ def asset_allocations(asset_id: UUID, db: Session = Depends(get_db)):
     return allocations
 
 
-@router.get("/dashboard/summary", response_model=AssetDashboardSummary, dependencies=[Depends(require_admin)])
+@dashboard_router.get("", response_model=AssetDashboardSummary, dependencies=[Depends(require_admin)])
 def asset_dashboard_summary(db: Session = Depends(get_db)):
     """
     Returns count of all asset statuses for admin dashboard.

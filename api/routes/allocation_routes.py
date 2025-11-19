@@ -15,6 +15,8 @@ from api.models.users import User
 
 
 router = APIRouter(prefix="/allocations", tags=["Allocations"])
+employees_router = APIRouter(prefix="/employees/me", tags=["employees"])
+
 
 # -------- Create Allocation (Admin)
 @router.post("", response_model=AllocationOut, dependencies=[Depends(require_admin)])
@@ -85,7 +87,7 @@ def list_all_allocations(db: Session = Depends(get_db)):
 
 
 # -------- Current employee allocations
-@router.get("/my", response_model=list[AllocationOut])
+@employees_router.get("/allocations", response_model=list[AllocationOut])
 def get_my_allocations(
     user = Depends(get_current_user),
     db: Session = Depends(get_db)

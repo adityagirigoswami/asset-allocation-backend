@@ -11,9 +11,11 @@ from api.models.user_roles import UserRole
 
 
 router = APIRouter(prefix="/admin/employees", tags=["Admin"])
+employees_router = APIRouter(prefix="/employees/me", tags=["employees"])
+
 
 # ADMIN-ONLY: create employee
-@router.post("/", response_model=UserResponse)
+@router.post("", response_model=UserResponse)
 def create_employee(payload: EmployeeCreate,
                     db: Session = Depends(get_db),
                     admin = Depends(require_admin)):
@@ -36,7 +38,7 @@ def create_employee(payload: EmployeeCreate,
 
 
 # List users (admin-only) with pagination + search
-@router.get("/", response_model=List[UserResponse], dependencies=[Depends(require_admin)])
+@router.get("", response_model=List[UserResponse], dependencies=[Depends(require_admin)])
 def list_users(
     db: Session = Depends(get_db),
     skip: int = 0,
@@ -113,8 +115,7 @@ def delete_user(user_id: str, db: Session = Depends(get_db)):
     db.commit()
     return
 
-
 # Get currently authenticated user (any logged-in user)
-@router.get("/me/user", response_model=UserResponse)
+@employees_router.get("", response_model=UserResponse)
 def me(current_user = Depends(get_current_user)):
     return current_user
