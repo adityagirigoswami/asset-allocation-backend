@@ -29,7 +29,7 @@ def add_return_request_names(req, db):
 
     req.asset_name = alloc.asset.name if alloc and alloc.asset else None
     req.employee_name = alloc.employee.full_name if alloc and alloc.employee else None
-
+    req.tag_code = alloc.asset.tag_code if alloc and alloc.asset else None
     return req
 
 # -------- Create return request (Employee)

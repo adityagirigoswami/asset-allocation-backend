@@ -183,8 +183,7 @@ def update_asset_status(
         user_id=admin.id,
         from_status=old_status,
         to_status=payload.status,
-        event_metadata=payload.event_metadata or {}
-    )
+        event_metadata={"reason": "status update via admin"})
     db.add(hist)
     db.commit()
     db.refresh(asset)

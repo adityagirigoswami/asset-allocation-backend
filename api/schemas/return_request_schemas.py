@@ -22,6 +22,7 @@ class ReturnRequestOut(BaseSchema):
     # NEW
     asset_name: Optional[str] = None
     employee_name: Optional[str] = None
+    tag_code: Optional[str] = None
 
     class Config:
         from_attributes = True

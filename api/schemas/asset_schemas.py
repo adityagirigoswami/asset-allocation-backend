@@ -81,7 +81,6 @@ class AssetOut(BaseModel):
 
 class AssetStatusUpdate(BaseModel):
     status: AssetStatus
-    event_metadata: Optional[dict] = None
 
 # ---------- History ----------
 class AssetHistoryOut(BaseSchema):
