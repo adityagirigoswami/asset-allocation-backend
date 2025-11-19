@@ -7,11 +7,14 @@ from api.models.assets import Asset
 from api.models.assets_histories import AssetHistory
 from api.schemas.allocation_schemas import AllocationCreate, AllocationOut
 from api.models.allocations import Allocation
+from api.schemas.asset_dashboard_schemas import AssetDashboardSummary
 from uuid import UUID
 from api.schemas.asset_schemas import (
     AssetCreate, AssetUpdate, AssetOut, AssetStatusUpdate, AssetHistoryOut
 )
 from api.utils.enums import AssetStatus
+from sqlalchemy.orm import selectinload
+
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
 
@@ -48,12 +51,20 @@ def create_asset(payload: AssetCreate, db: Session = Depends(get_db), admin=Depe
 # -------- List all assets
 @router.get("", response_model=list[AssetOut],dependencies=[Depends(require_admin)])
 def list_assets(db: Session = Depends(get_db)):
-    return db.query(Asset).filter(Asset.deleted_at.is_(None)).all()
+    return (db.query(Asset)
+        .options(selectinload(Asset.category))
+        .filter(Asset.deleted_at.is_(None))
+        .all())
 
 # -------- Get asset by ID
 @router.get("/{id}", response_model=AssetOut)
 def get_asset(id: str, db: Session = Depends(get_db)):
-    asset = db.query(Asset).filter(Asset.id == id, Asset.deleted_at.is_(None)).first()
+    asset = (
+        db.query(Asset)
+        .options(selectinload(Asset.category))
+        .filter(Asset.id == id, Asset.deleted_at.is_(None))
+        .first()
+        )
     if not asset:
         raise HTTPException(404, "Asset not found")
     return asset
@@ -88,7 +99,7 @@ def delete_asset(id: str, db: Session = Depends(get_db)):
     if not asset:
         raise HTTPException(404, "Asset not found")
 
-    asset.deleted_at = datetime.utcnow()
+    asset.deleted_at = datetime
     db.commit()
 
 
@@ -159,3 +170,40 @@ def asset_allocations(asset_id: UUID, db: Session = Depends(get_db)):
         )
 
     return allocations
+
+
+@router.get("/dashboard/summary", response_model=AssetDashboardSummary, dependencies=[Depends(require_admin)])
+def asset_dashboard_summary(db: Session = Depends(get_db)):
+    """
+    Returns count of all asset statuses for admin dashboard.
+    """
+
+    total = db.query(Asset).filter(Asset.deleted_at.is_(None)).count()
+
+    available = db.query(Asset).filter(
+        Asset.status == AssetStatus.available,
+        Asset.deleted_at.is_(None)
+    ).count()
+
+    assigned = db.query(Asset).filter(
+        Asset.status == AssetStatus.assigned,
+        Asset.deleted_at.is_(None)
+    ).count()
+
+    under_repair = db.query(Asset).filter(
+        Asset.status == AssetStatus.under_repair,
+        Asset.deleted_at.is_(None)
+    ).count()
+
+    damaged = db.query(Asset).filter(
+        Asset.status == AssetStatus.damaged,
+        Asset.deleted_at.is_(None)
+    ).count()
+
+    return AssetDashboardSummary(
+        total_assets=total,
+        available=available,
+        assigned=assigned,
+        under_repair=under_repair,
+        damaged=damaged
+    )

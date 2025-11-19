@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 from db.auth import get_db
 from core.security import require_admin, get_current_user
@@ -8,24 +8,43 @@ from api.models.allocations import Allocation
 from api.models.assets import Asset
 from api.models.assets_histories import AssetHistory
 from api.utils.enums import AssetStatus
+from datetime import datetime, timezone
+from datetime import timezone
 from api.schemas.return_request_schemas import (
     ReturnRequestCreate, ReturnRequestOut, ReturnRequestApprove
 )
 
 router = APIRouter(prefix="/return-requests", tags=["Return Requests"])
 
+def add_return_request_names(req, db):
+    """
+    Inject asset_name and employee_name into return request response.
+    """
+    alloc = db.query(Allocation).options(
+        joinedload(Allocation.asset),
+        joinedload(Allocation.employee)
+    ).filter(Allocation.id == req.allocation_id).first()
+
+    req.asset_name = alloc.asset.name if alloc and alloc.asset else None
+    req.employee_name = alloc.employee.full_name if alloc and alloc.employee else None
+
+    return req
+
 # -------- Create return request (Employee)
 @router.post("", response_model=ReturnRequestOut)
 def create_return_request(payload: ReturnRequestCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    alloc = db.query(Allocation).filter(
+        Allocation.id == payload.allocation_id, 
+        Allocation.deleted_at.is_(None)
+    ).first()
 
-    alloc = db.query(Allocation).filter(Allocation.id == payload.allocation_id, Allocation.deleted_at.is_(None)).first()
     if not alloc:
         raise HTTPException(404, "Allocation not found")
 
     if alloc.employee_id != user.id:
         raise HTTPException(403, "You can't request return of another user's allocation")
 
-    if alloc.returned_at is not None:
+    if alloc.returned_at:
         raise HTTPException(409, "Already returned")
 
     req = ReturnRequest(
@@ -33,33 +52,41 @@ def create_return_request(payload: ReturnRequestCreate, db: Session = Depends(ge
         requested_by=user.id,
         description=payload.description
     )
+
     db.add(req)
     db.commit()
     db.refresh(req)
-    return req
+
+    return add_return_request_names(req, db)
 
 
-# -------- List my return requests
 @router.get("/my", response_model=list[ReturnRequestOut])
 def my_requests(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    return (
+    requests = (
         db.query(ReturnRequest)
         .filter(ReturnRequest.requested_by == user.id, ReturnRequest.deleted_at.is_(None))
         .order_by(ReturnRequest.created_at.desc())
         .all()
     )
 
+    return [add_return_request_names(req, db) for req in requests]
+
+
 
 # -------- List pending approvals (Admin)
 @router.get("/pending", response_model=list[ReturnRequestOut], dependencies=[Depends(require_admin)])
 def pending_requests(db: Session = Depends(get_db)):
-    return (
+    requests = (
         db.query(ReturnRequest)
         .filter(ReturnRequest.approved_at.is_(None), ReturnRequest.deleted_at.is_(None))
         .order_by(ReturnRequest.created_at.asc())
         .all()
     )
 
+    return [add_return_request_names(req, db) for req in requests]
+
+
+# -------- Approve return request (Admin)
 
 # -------- Approve return request (Admin)
 @router.post("/{id}/approve", response_model=ReturnRequestOut, dependencies=[Depends(require_admin)])
@@ -69,19 +96,17 @@ def approve_return(id: str, payload: ReturnRequestApprove, db: Session = Depends
     if not req:
         raise HTTPException(404, "Return request not found")
 
-    if req.approved_at is not None:
+    if req.approved_at:
         raise HTTPException(409, "Already approved")
 
     alloc = db.query(Allocation).filter(Allocation.id == req.allocation_id).first()
-    if alloc.returned_at is not None:
+    if alloc.returned_at:
         raise HTTPException(409, "Already returned")
 
     asset = db.query(Asset).filter(Asset.id == alloc.asset_id).first()
 
-    # Mark allocation returned
-    alloc.returned_at = datetime.utcnow()
-
-    # Asset back to available
+    # FIX 1: Use datetime.now(timezone.utc) to set returned_at
+    alloc.returned_at = datetime.now(timezone.utc)
     old = asset.status
     asset.status = AssetStatus.available
 
@@ -93,9 +118,11 @@ def approve_return(id: str, payload: ReturnRequestApprove, db: Session = Depends
         event_metadata={"reason": "return_approved", "alloc": str(alloc.id)}
     ))
 
-    req.approved_at = datetime.utcnow()
+    # FIX 2: Use datetime.now(timezone.utc) to set approved_at
+    req.approved_at = datetime.now(timezone.utc)
     req.decision_note = payload.decision_note
 
     db.commit()
     db.refresh(req)
-    return req
+
+    return add_return_request_names(req, db)

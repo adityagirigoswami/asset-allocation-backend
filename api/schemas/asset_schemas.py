@@ -49,7 +49,6 @@ class AssetUpdate(BaseSchema):
 
 class AssetOut(BaseModel):
     id: UUID
-    category_id: Optional[int] = None
     name: str
     tag_code: Optional[str] = None
     serial_number: Optional[str] = None
@@ -60,6 +59,10 @@ class AssetOut(BaseModel):
     specs: Optional[dict] = None
     created_at: Optional[datetime] = None
 
+    category: Optional[CategoryOut] = None
+
+    class Config:
+        from_attributes = True
 
 class AssetStatusUpdate(BaseModel):
     status: AssetStatus

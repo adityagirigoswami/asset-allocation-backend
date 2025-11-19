@@ -7,13 +7,33 @@ from api.models.users import User
 from api.schemas.user_schemas import UserResponse, UserUpdate, EmployeeCreate
 from core.security import require_admin, get_current_user
 from api.utils.hashing import hash_password, verify_password
+from api.models.user_roles import UserRole
+
 
 router = APIRouter(prefix="/admin/employees", tags=["Admin"])
 
-# Get currently authenticated user (any logged-in user)
-@router.get("/me", response_model=UserResponse)
-def me(current_user = Depends(get_current_user)):
-    return current_user
+# ADMIN-ONLY: create employee
+@router.post("/", response_model=UserResponse)
+def create_employee(payload: EmployeeCreate,
+                    db: Session = Depends(get_db),
+                    admin = Depends(require_admin)):
+    employee_role = db.query(UserRole).filter(UserRole.name == "employee").first()
+    if not employee_role:
+        raise HTTPException(status_code=500, detail="Employee role missing. Run seeding.")
+
+    new_user = User(
+        email=payload.email,
+        password_hash=hash_password(payload.password),
+        full_name=payload.full_name,
+        role_id=employee_role.id,
+        employee_code=payload.employee_code,
+        phone=payload.phone
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
 
 # List users (admin-only) with pagination + search
 @router.get("/", response_model=List[UserResponse], dependencies=[Depends(require_admin)])
@@ -93,3 +113,8 @@ def delete_user(user_id: str, db: Session = Depends(get_db)):
     db.commit()
     return
 
+
+# Get currently authenticated user (any logged-in user)
+@router.get("/me", response_model=UserResponse)
+def me(current_user = Depends(get_current_user)):
+    return current_user

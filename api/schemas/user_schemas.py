@@ -25,6 +25,7 @@ class UserLogin(BaseModel):
 class TokenPair(BaseModel):
     access_token: str
     refresh_token: str
+    role: str   
     token_type: str = "bearer"
 
 class UserResponse(BaseSchema):
