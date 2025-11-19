@@ -115,6 +115,6 @@ def delete_user(user_id: str, db: Session = Depends(get_db)):
 
 
 # Get currently authenticated user (any logged-in user)
-@router.get("/me", response_model=UserResponse)
+@router.get("/me/user", response_model=UserResponse)
 def me(current_user = Depends(get_current_user)):
     return current_user
