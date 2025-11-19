@@ -62,7 +62,7 @@ def list_assets(db: Session = Depends(get_db)):
     return (db.query(Asset)
         .options(selectinload(Asset.category))
         .filter(Asset.deleted_at.is_(None))
-        .order_by(Asset.updated_at.desc())
+        .order_by(Asset.created_at.desc())
         .all())
 
 # -------- Get asset by ID
