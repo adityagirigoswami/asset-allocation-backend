@@ -42,7 +42,7 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
         return {"detail": "If the email exists, a reset link will be sent."}
 
     token = str(uuid.uuid4())
-    expires_at = datetime() + timedelta(hours=1)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
 
     prt = PasswordResetToken(
         user_id=user.id,

@@ -38,7 +38,7 @@ class UserResponse(BaseSchema):
 
 
 class UserUpdate(BaseModel):
-    full_name: Optional[str]
-    password: Optional[str]
-    employee_code: Optional[str]
-    phone: Optional[str]
+    full_name: Optional[str] = None
+    password: Optional[str] = None
+    employee_code: Optional[str] = None
+    phone: Optional[str] = None
