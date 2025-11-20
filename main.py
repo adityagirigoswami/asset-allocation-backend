@@ -42,9 +42,32 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     }
     
     for error in errors:
-        # Get field path (skip 'body' prefix for cleaner messages)
+        # Get field path (skip 'body', 'query', 'path' prefixes for cleaner messages)
         loc = error.get("loc", [])
-        field_path = [str(loc_item) for loc_item in loc if loc_item != "body"]
+        # Convert loc to list if it's a tuple
+        if isinstance(loc, tuple):
+            loc = list(loc)
+        
+        # Filter out location type prefixes but keep actual field names
+        skip_prefixes = {"body", "query", "path"}
+        field_path = []
+        
+        for loc_item in loc:
+            loc_str = str(loc_item)
+            # Skip location type prefixes, but keep everything else (field names, indices, etc.)
+            if loc_str not in skip_prefixes:
+                field_path.append(loc_str)
+        
+        # If no field path found after filtering, check if loc has any non-prefix items
+        if not field_path and len(loc) > 1:
+            # Try all items except the first (which is usually the prefix)
+            for item in loc[1:]:
+                item_str = str(item)
+                if item_str not in skip_prefixes:
+                    field_path.append(item_str)
+                    break  # Take the first non-prefix item
+        
+        # Use field path or default to "input"
         field_name = " -> ".join(field_path) if field_path else "input"
         
         # Get error type and message
