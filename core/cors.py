@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-DEFAULT_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:4173",
-    "http://localhost:4173",
-    "http://localhost:3000",
-]
+from core.config import settings
 
 def setup_cors(app: FastAPI, origins: list[str] | None = None) -> None:
+    """
+    Setup CORS middleware for the FastAPI app.
+    
+    Args:
+        app: FastAPI application instance
+        origins: Optional list of allowed origins. If not provided, uses CORS_ORIGINS from .env
+    """
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins or DEFAULT_ORIGINS,
+        allow_origins=origins or settings.CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

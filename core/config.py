@@ -36,5 +36,9 @@ class Settings:
 
     FRONTEND_RESET_URL = os.getenv("FRONTEND_RESET_URL")
 
+    # CORS Origins (comma-separated list from .env)
+    _cors_origins = os.getenv("CORS_ORIGINS", "")
+    CORS_ORIGINS = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()] if _cors_origins else []
+
 
 settings = Settings()
