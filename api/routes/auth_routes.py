@@ -17,7 +17,7 @@ from core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/login", response_model=TokenPair , status_code=status.HTTP_201_CREATED)
+@router.post("/login", response_model=TokenPair, status_code=status.HTTP_200_OK)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(user.password_hash, payload.password):
