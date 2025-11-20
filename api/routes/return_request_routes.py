@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 from api.routes.admin_routes import employees_router
@@ -33,7 +33,7 @@ def add_return_request_names(req, db):
     return req
 
 # -------- Create return request (Employee)
-@router.post("", response_model=ReturnRequestOut)
+@router.post("", response_model=ReturnRequestOut, status_code=status.HTTP_201_CREATED)
 def create_return_request(payload: ReturnRequestCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     alloc = db.query(Allocation).filter(
         Allocation.id == payload.allocation_id, 

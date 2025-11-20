@@ -15,7 +15,7 @@ employees_router = APIRouter(prefix="/employees/me", tags=["employees"])
 
 
 # ADMIN-ONLY: create employee
-@router.post("", response_model=UserResponse)
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_employee(payload: EmployeeCreate,
                     db: Session = Depends(get_db),
                     admin = Depends(require_admin)):

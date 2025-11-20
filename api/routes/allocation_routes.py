@@ -1,17 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session , joinedload
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
+from uuid import UUID
 from db.auth import get_db
 from core.security import require_admin, get_current_user
 from api.models.allocations import Allocation
 from api.models.assets import Asset
 from api.models.assets_histories import AssetHistory
+from api.models.users import User
 from api.utils.enums import AssetStatus
 from api.schemas.allocation_schemas import AllocationCreate, AllocationOut
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from uuid import UUID
-from api.models.users import User
 
 
 router = APIRouter(prefix="/allocations", tags=["Allocations"])
@@ -19,7 +17,7 @@ employees_router = APIRouter(prefix="/employees/me", tags=["employees"])
 
 
 # -------- Create Allocation (Admin)
-@router.post("", response_model=AllocationOut, dependencies=[Depends(require_admin)])
+@router.post("", response_model=AllocationOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
 def allocate_asset(payload: AllocationCreate, db: Session = Depends(get_db), admin=Depends(get_current_user)):
 
     asset = db.query(Asset).filter(Asset.id == payload.asset_id, Asset.deleted_at.is_(None)).first()
