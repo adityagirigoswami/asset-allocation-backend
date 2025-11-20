@@ -12,7 +12,7 @@ def setup_cors(app: FastAPI, origins: list[str] | None = None) -> None:
     """
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins or settings.CORS_ORIGINS,
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
