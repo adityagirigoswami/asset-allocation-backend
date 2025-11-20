@@ -22,7 +22,7 @@ It manages user authentication, asset tracking, allocations, return requests, an
 
 | **Backend Framework** | FastAPI |
 
-| **Database** | PostgreSQL |
+| **Database** | PostgreSQL  |
 
 | **ORM** | SQLAlchemy |
 
