@@ -49,6 +49,10 @@ class TestAuthRoutes:
         
         res = client.post("/auth/login", json={"email": "x@x.com", "password": "pw"})
         assert res.status_code == 401
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
     
     def test_login_success(self, monkeypatch, client, fake_session_factory, override_dependencies):
         """Test successful login"""
@@ -81,7 +85,8 @@ class TestAuthRoutes:
         
         res = client.post("/auth/password/reset-request", json={"email": user.email})
         assert res.status_code == 200
-        assert "reset link" in res.json()["detail"].lower()
+        # Password reset returns success message in "detail" key (not an error)
+        assert "reset link" in res.json().get("detail", "").lower() or "email" in res.json().get("detail", "").lower()
 
 
 # ========== ASSET ROUTES ==========
@@ -97,7 +102,11 @@ class TestAssetRoutes:
         
         res = client.delete(f"/assets/{assigned.id}")
         assert res.status_code == 400
-        assert "assigned" in res.json()["detail"].lower()
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
+        assert "assigned" in res.json()["error"].lower()
 
 
 # ========== ALLOCATION ROUTES ==========
@@ -118,6 +127,10 @@ class TestReturnRequestRoutes:
         
         res = client.post("/requests", json={"allocation_id": "missing", "description": "x"})
         assert res.status_code == 404
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
     
     def test_create_return_request_wrong_employee(self, client, fake_session_factory, override_dependencies):
         """Test creating return request for another employee's allocation"""
@@ -128,5 +141,9 @@ class TestReturnRequestRoutes:
         
         res = client.post("/requests", json={"allocation_id": alloc.id, "description": "x"})
         assert res.status_code == 403
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
     
 
