@@ -34,7 +34,7 @@ class Settings:
     MAIL_TLS = os.getenv("MAIL_TLS", "True") == "True"
     MAIL_SSL = os.getenv("MAIL_SSL", "False") == "True"
 
-    FRONTEND_RESET_URL = os.getenv("FRONTEND_RESET_URL", "http://localhost:3000/reset-password")
+    FRONTEND_RESET_URL = os.getenv("FRONTEND_RESET_URL", "https://asset-allocation-frontend.vercel.app")
 
     # CORS Origins (comma-separated list from .env)
     _cors_origins = os.getenv("CORS_ORIGINS", "")

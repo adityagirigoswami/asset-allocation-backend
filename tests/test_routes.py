@@ -107,12 +107,74 @@ class TestAssetRoutes:
         assert "status_code" in res.json()
         assert res.json()["success"] == False
         assert "assigned" in res.json()["error"].lower()
+    
+    def test_create_asset_unauthorized(self, client, fake_session_factory, override_dependencies):
+        """Test creating asset without admin authentication (should fail)"""
+        fs = fake_session_factory({"Category": [], "Asset": []})
+        override_dependencies.set_db(fs)
+        # No admin authentication override set
+        
+        res = client.post("/assets", json={
+            "category_id": 1,
+            "name": "Test Asset",
+            "tag_code": "TST-001"
+        })
+        assert res.status_code == 401
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
+    
+    def test_create_asset_invalid_data(self, client, fake_session_factory, override_dependencies):
+        """Test creating asset with invalid/missing required fields"""
+        fs = fake_session_factory({"Category": [], "Asset": []})
+        override_dependencies.set_db(fs)
+        # set_require_admin now automatically overrides both require_admin and get_current_user
+        override_dependencies.set_require_admin(make_user(role_name="admin"))
+        
+        # Missing required field (name)
+        res = client.post("/assets", json={
+            "category_id": 1,
+            "tag_code": "TST-001"
+        })
+        assert res.status_code == 422
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
 
 
 # ========== ALLOCATION ROUTES ==========
 class TestAllocationRoutes:
     """Test allocation endpoints"""
-    pass  # Removed complex tests that require proper dependency overrides
+    
+    def test_create_allocation_unauthorized(self, client, fake_session_factory, override_dependencies):
+        """Test creating allocation without authentication (should fail)"""
+        fs = fake_session_factory({"Asset": [], "Allocation": []})
+        override_dependencies.set_db(fs)
+        # No authentication override set
+        
+        res = client.post("/allocations", json={"asset_id": "test-id", "employee_id": "emp-id"})
+        assert res.status_code == 401
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
+    
+    def test_create_allocation_invalid_data(self, client, fake_session_factory, override_dependencies):
+        """Test creating allocation with invalid/missing required fields"""
+        fs = fake_session_factory({"Asset": [], "Allocation": []})
+        override_dependencies.set_db(fs)
+        # set_require_admin now automatically overrides both require_admin and get_current_user
+        override_dependencies.set_require_admin(make_user(role_name="admin"))
+        
+        # Missing required fields (asset_id, employee_id)
+        res = client.post("/allocations", json={})
+        assert res.status_code == 422
+        # Verify standardized error response format
+        assert "error" in res.json()
+        assert "status_code" in res.json()
+        assert res.json()["success"] == False
 
 
 # ========== RETURN REQUEST ROUTES ==========

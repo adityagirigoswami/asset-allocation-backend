@@ -111,7 +111,3 @@ def root():
         "status_code": status.HTTP_200_OK,
         "message": "Welcome to Asset Allocation System API",
     }
-
-@app.get("/reset-password")
-def reset_password_preview(token: str):
-    return {"message": "Use this token to call /auth/password/reset", "token": token}

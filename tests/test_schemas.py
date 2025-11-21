@@ -50,6 +50,25 @@ class TestUserSchemas:
         assert schema.full_name == "Updated Name"
         assert schema.password is None
         assert schema.employee_code is None
+    
+    def test_employee_create_missing_required_fields(self):
+        """Test employee creation with missing required fields"""
+        # Missing email (required field)
+        with pytest.raises(ValidationError) as exc_info:
+            EmployeeCreate(
+                password="password123",
+                full_name="Test User"
+            )
+        # Should raise validation error for missing email
+        assert "email" in str(exc_info.value).lower()
+    
+    def test_user_login_missing_password(self):
+        """Test user login with missing password"""
+        # Missing password (required field)
+        with pytest.raises(ValidationError) as exc_info:
+            UserLogin(email="user@example.com")
+        # Should raise validation error for missing password
+        assert "password" in str(exc_info.value).lower() or "required" in str(exc_info.value).lower()
 
 
 class TestAssetSchemas:
@@ -105,4 +124,22 @@ class TestAssetSchemas:
         """Test category creation with name too short"""
         with pytest.raises(ValidationError):
             CategoryCreate(name="A")  # Less than min_length=2
+    
+    def test_asset_update_invalid_date_range(self):
+        """Test asset update with invalid date range (purchase_date after warranty_expiry)"""
+        with pytest.raises(ValidationError) as exc_info:
+            AssetUpdate(
+                purchase_date=date(2024, 12, 31),
+                warranty_expiry=date(2024, 1, 1)  # Before purchase date
+            )
+        # Should raise validation error for invalid date range
+        assert "Purchase date cannot be after warranty expiry date" in str(exc_info.value) or "warranty" in str(exc_info.value).lower()
+    
+    def test_asset_create_missing_required_fields(self):
+        """Test asset creation with missing required fields"""
+        # Missing category_id and name (required fields)
+        with pytest.raises(ValidationError) as exc_info:
+            AssetCreate(tag_code="TST-001")
+        # Should raise validation error for missing required fields
+        assert "category_id" in str(exc_info.value).lower() or "name" in str(exc_info.value).lower() or "required" in str(exc_info.value).lower()
 

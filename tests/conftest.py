@@ -92,8 +92,11 @@ def override_dependencies(monkeypatch):
         overrides['current_user'] = lambda: user_obj
 
     def set_require_admin(user_obj):
+        # Override both require_admin and get_current_user since routes use both
         app.dependency_overrides[core_security.require_admin] = lambda: user_obj
+        app.dependency_overrides[core_security.get_current_user] = lambda: user_obj
         overrides['require_admin'] = lambda: user_obj
+        overrides['current_user'] = lambda: user_obj
 
     monkeypatch.setattr("api.utils.mailer.EmailService.send_email", lambda *a, **k: None)
 
