@@ -16,7 +16,7 @@ It manages user authentication, asset tracking, allocations, return requests, an
 
   
 
-| Layer | Technology  |
+| Layer | Technology     |
 
 |--------|------------- |
 
