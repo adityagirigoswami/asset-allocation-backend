@@ -37,6 +37,8 @@ jobs:
     name: Run Trivy Static Code Scan
     runs-on: ubuntu-latest
 
+    needs: [test]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -54,7 +56,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # Deployment only runs if both 'test' and 'trivy-sast' jobs succeeded
-    needs: [test, trivy-sast]
+    needs: [trivy-sast]
 
     steps:
       - name: Checkout code
