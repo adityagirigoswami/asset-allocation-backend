@@ -32,12 +32,29 @@ jobs:
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
+  # ---------------- SECURITY SCAN: TRIVY SAST ----------------
+  trivy-sast:
+    name: Run Trivy Static Code Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
 
   # ---------------- CD JOB: DEPLOY TO EC2 ----------------
   deploy:
     runs-on: ubuntu-latest
-    # Deployment only runs if the 'test' job succeeded
-    needs: test
+    # Deployment only runs if both 'test' and 'trivy-sast' jobs succeeded
+    needs: [test, trivy-sast]
 
     steps:
       - name: Checkout code
