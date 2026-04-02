@@ -16,13 +16,13 @@ It manages user authentication, asset tracking, allocations, return requests, an
 
   
 
-| Layer | Technology |
+| Layer | Technology     |
 
-|--------|-------------|
+|--------|------------- |
 
 | **Backend Framework** | FastAPI |
 
-| **Database** | PostgreSQL |
+| **Database** | PostgreSQL      |
 
 | **ORM** | SQLAlchemy |
 

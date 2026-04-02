@@ -25,6 +25,7 @@ class UserLogin(BaseModel):
 class TokenPair(BaseModel):
     access_token: str
     refresh_token: str
+    role: str   
     token_type: str = "bearer"
 
 class UserResponse(BaseSchema):
@@ -37,7 +38,7 @@ class UserResponse(BaseSchema):
 
 
 class UserUpdate(BaseModel):
-    full_name: Optional[str]
-    password: Optional[str]
-    employee_code: Optional[str]
-    phone: Optional[str]
+    full_name: Optional[str] = None
+    password: Optional[str] = None
+    employee_code: Optional[str] = None
+    phone: Optional[str] = None

@@ -1,6 +1,6 @@
 # api/schemas/asset_schemas.py
 from datetime import date, datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Any, Optional
 from api.utils.enums import AssetStatus
 from uuid import UUID
@@ -37,6 +37,13 @@ class AssetCreate(BaseModel):
     warranty_expiry: Optional[date] = None
     specs: Optional[dict[str, Any]] = None
 
+    @model_validator(mode='after')
+    def validate_dates(self):
+        if self.purchase_date and self.warranty_expiry:
+            if self.purchase_date > self.warranty_expiry:
+                raise ValueError("Purchase date cannot be after warranty expiry date")
+        return self
+
 class AssetUpdate(BaseSchema):
     category_id: Optional[int] = None
     name: Optional[str] = None
@@ -47,9 +54,15 @@ class AssetUpdate(BaseSchema):
     warranty_expiry: Optional[date] = None
     specs: Optional[dict[str, Any]] = None
 
+    @model_validator(mode='after')
+    def validate_dates(self):
+        if self.purchase_date and self.warranty_expiry:
+            if self.purchase_date > self.warranty_expiry:
+                raise ValueError("Purchase date cannot be after warranty expiry date")
+        return self
+
 class AssetOut(BaseModel):
     id: UUID
-    category_id: Optional[int] = None
     name: str
     tag_code: Optional[str] = None
     serial_number: Optional[str] = None
@@ -59,11 +72,15 @@ class AssetOut(BaseModel):
     warranty_expiry: Optional[date] = None
     specs: Optional[dict] = None
     created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
+    category: Optional[CategoryOut] = None
+
+    class Config:
+        from_attributes = True
 
 class AssetStatusUpdate(BaseModel):
     status: AssetStatus
-    event_metadata: Optional[dict] = None
 
 # ---------- History ----------
 class AssetHistoryOut(BaseSchema):

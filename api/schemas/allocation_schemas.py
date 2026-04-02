@@ -21,3 +21,11 @@ class AllocationOut(BaseSchema):
     notes: Optional[str] = None
     created_at: Optional[datetime] = None
 
+    # NEW FIELDS
+    asset_name: Optional[str] = None
+    employee_name: Optional[str] = None
+    allocated_by_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+

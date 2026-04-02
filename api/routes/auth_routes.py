@@ -17,7 +17,7 @@ from core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/login", response_model=TokenPair)
+@router.post("/login", response_model=TokenPair, status_code=status.HTTP_200_OK)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(user.password_hash, payload.password):
@@ -25,7 +25,8 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
 
     return TokenPair(
         access_token=create_access_token(str(user.id)),
-        refresh_token=create_refresh_token(str(user.id))
+        refresh_token=create_refresh_token(str(user.id)),
+        role=user.role.name
     )
 
 
@@ -41,7 +42,7 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
         return {"detail": "If the email exists, a reset link will be sent."}
 
     token = str(uuid.uuid4())
-    expires_at = datetime.utcnow() + timedelta(hours=1)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
 
     prt = PasswordResetToken(
         user_id=user.id,
@@ -91,7 +92,7 @@ def confirm_password_reset(payload: PasswordResetConfirm, db: Session = Depends(
         raise HTTPException(status_code=404, detail="User not found")
 
     user.password_hash = hash_password(payload.new_password)
-    token_row.used_at = datetime.utcnow()
+    token_row.used_at = datetime.now(timezone.utc)
 
     db.commit()
 
@@ -117,24 +118,4 @@ def refresh_token(refresh_token: str = Header(..., alias="X-Refresh-Token"),
         refresh_token=create_refresh_token(str(user.id))
     )
 
-# ADMIN-ONLY: create employee
-@router.post("/employees", response_model=UserResponse)
-def create_employee(payload: EmployeeCreate,
-                    db: Session = Depends(get_db),
-                    admin = Depends(require_admin)):
-    employee_role = db.query(UserRole).filter(UserRole.name == "employee").first()
-    if not employee_role:
-        raise HTTPException(status_code=500, detail="Employee role missing. Run seeding.")
 
-    new_user = User(
-        email=payload.email,
-        password_hash=hash_password(payload.password),
-        full_name=payload.full_name,
-        role_id=employee_role.id,
-        employee_code=payload.employee_code,
-        phone=payload.phone
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user

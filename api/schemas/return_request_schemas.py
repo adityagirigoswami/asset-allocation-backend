@@ -19,6 +19,14 @@ class ReturnRequestOut(BaseSchema):
     decision_note: Optional[str] = None
     created_at: Optional[datetime] = None
 
+    # NEW
+    asset_name: Optional[str] = None
+    employee_name: Optional[str] = None
+    tag_code: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 
 class ReturnRequestApprove(BaseModel):
     decision_note: Optional[str] = None

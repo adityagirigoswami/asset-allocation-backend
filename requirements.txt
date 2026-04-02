@@ -1,3 +1,4 @@
+aiosmtplib==4.0.2
 alembic==1.17.1
 annotated-doc==0.0.4
 annotated-types==0.7.0
@@ -8,6 +9,7 @@ babel==2.17.0
 backrefs==5.9
 bcrypt==4.1.2
 beautifulsoup4==4.14.2
+blinker==1.9.0
 bs4==0.0.2
 certifi==2025.11.12
 cffi==2.0.0
@@ -15,11 +17,11 @@ charset-normalizer==3.4.4
 click==8.3.0
 colorama==0.4.6
 cryptography==46.0.3
-Django==5.2.6
 dnspython==2.8.0
 dotenv==0.9.9
 email-validator==2.3.0
 fastapi==0.121.1
+fastapi-mail==1.5.8
 ghp-import==2.1.0
 greenlet==3.2.4
 h11==0.16.0
@@ -45,10 +47,10 @@ passlib==1.7.4
 pathspec==0.12.1
 platformdirs==4.4.0
 pluggy==1.6.0
-psycopg2==2.9.11
 psycopg2-binary==2.9.11
 pycparser==2.23
 pydantic==2.12.4
+pydantic-settings==2.12.0
 pydantic_core==2.41.5
 Pygments==2.19.2
 PyJWT==2.10.1
@@ -61,6 +63,7 @@ python-dotenv==1.2.1
 pytz==2025.2
 PyYAML==6.0.3
 pyyaml_env_tag==1.1
+regex==2025.11.3
 requests==2.32.5
 selenium==4.37.0
 six==1.17.0

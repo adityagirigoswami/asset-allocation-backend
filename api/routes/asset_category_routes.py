@@ -5,9 +5,9 @@ from core.security import require_admin
 from api.models.categories import Category
 from api.schemas.asset_schemas import CategoryCreate, CategoryUpdate, CategoryOut
 
-router = APIRouter(prefix="/asset-categories", tags=["Asset Categories"])
+router = APIRouter(prefix="/categories", tags=["Asset Categories"])
 
-@router.post("", response_model=CategoryOut, dependencies=[Depends(require_admin)])
+@router.post("", response_model=CategoryOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
 def create_category(payload: CategoryCreate, db: Session = Depends(get_db)):
     exists = db.query(Category).filter(Category.name == payload.name, Category.deleted_at.is_(None)).first()
     if exists:
